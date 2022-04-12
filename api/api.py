@@ -1,7 +1,11 @@
 #%%
+import os
 import flask
 from flask import request, jsonify
 from keybert import KeyBERT
+
+from sentence_transformers import SentenceTransformer
+model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -26,10 +30,8 @@ def api_id():
 def keybertify(data, range = 1):
     data = data
     range = int(range)
-    model = KeyBERT('distilbert-base-nli-mean-tokens')
-    #model = KeyBERT('distilbert-base-nli-stsb-mean-tokens')
-    #model = KeyBERT('xlm-r-distilroberta-base-paraphrase-v1')
-    keywords = model.extract_keywords(data, keyphrase_ngram_range=(1,range))
+    model = KeyBERT('paraphrase-multilingual-MiniLM-L12-v2')
+    keywords = model.extract_keywords(data, keyphrase_ngram_range=(1,range), stop_words='english')
     return keywords
 
 if __name__ == '__main__':
