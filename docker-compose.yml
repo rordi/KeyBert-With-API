@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+
+
+  #=============================================================#
+  #                      application layer                      #
+  #=============================================================#
+
+  ##### apache / php #####
+  keybert-api:
+    build:
+      context: .
+    container_name: keybert-api
+    ports:
+      - '${WEB_PORT}:5000'
+    volumes:
+      - './api:/app/api:rw'

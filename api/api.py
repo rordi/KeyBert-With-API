@@ -4,8 +4,23 @@ import flask
 from flask import request, jsonify
 from keybert import KeyBERT
 
+# Init sentence transformer model used by KeyBERT
 from sentence_transformers import SentenceTransformer
 model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+
+# Init default vectorizer for keyphrase extraction
+# @see https://github.com/TimSchopf/KeyphraseVectorizers
+from keyphrase_vectorizers import KeyphraseCountVectorizer
+vectorizer = KeyphraseCountVectorizer()
+
+# Training documents
+docs = []
+with open('/app/api/training_docs.txt', 'r') as training_file:
+    for line in training_file:
+        docs.append(line)
+
+# After initializing the vectorizer, it can be fitted to learn the keyphrases from the training documents.
+document_keyphrase_matrix = vectorizer.fit_transform(docs).toarray()
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -31,7 +46,7 @@ def keybertify(data, range = 1):
     data = data
     range = int(range)
     model = KeyBERT('paraphrase-multilingual-MiniLM-L12-v2')
-    keywords = model.extract_keywords(data, keyphrase_ngram_range=(1,range), stop_words='english')
+    keywords = model.extract_keywords(data, vectorizer=KeyphraseCountVectorizer())
     return keywords
 
 if __name__ == '__main__':
